@@ -20,17 +20,48 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Restart ADB server
+        run: |
+          adb kill-server
+          adb start-server
+
       - name: Run Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
           target: google_apis
-          arch: x86_64
-          script: ./gradlew connectedDebugAndroidTest
-
+          arch: x86
+          disable-animations: true
+          emulator-options: "-no-snapshot -no-window -gpu off"
+          script: |
+            adb wait-for-device
+            boot_completed=""
+            until [[ "$boot_completed" = "1" ]]; do
+              echo "Waiting for emulator to boot..."
+              sleep 5
+              boot_completed=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            done
+            echo "Emulator booted!"
+            ./gradlew connectedDebugAndroidTest
 
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
         with:
           name: android-test-results
           path: app/build/reports/androidTests
+
+      - name: Collect Emulator Logs
+        if: failure()
+        run: |
+          adb devices
+          adb logcat -d > logcat.txt || echo "Failed to capture logcat"
+          adb shell dumpsys > dumpsys.txt || echo "Failed to capture dumpsys"
+
+      - name: Upload Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-logs
+          path: |
+            logcat.txt
+            dumpsys.txt
