@@ -41,12 +41,6 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Restart ADB server
-        run: |
-          adb kill-server
-          adb start-server
-          adb devices
-
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
