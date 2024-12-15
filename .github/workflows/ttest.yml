@@ -34,7 +34,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          cmdline-tools-version: 16.0
+          cmdline-tools-version: 6.0  # Используем стабильную доступную версию
 
       # 4. Установка переменной окружения для пропуска проверки JDK
       - name: Skip JDK version check
