@@ -56,13 +56,13 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: pixel_3a
-          emulator-options: "-no-snapshot -no-boot-anim -wipe-data"
+          emulator-options: "-no-snapshot -no-boot-anim -wipe-data -gpu off -qemu -m 2048"
           force-avd-creation: true
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 600  # увеличено время ожидания
           disable-animations: true
           script: |
             adb wait-for-device
-            adb shell getprop sys.boot_completed
+            sleep 30
             adb shell input keyevent 82  # разблокировка экрана
 
       - name: Restart adb server
@@ -70,6 +70,7 @@ jobs:
           adb kill-server
           adb start-server
           adb wait-for-device
+          sleep 30
 
       - name: Run Instrumented Tests
         run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.itog1.ExampleInstrumentedTest
