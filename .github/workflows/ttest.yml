@@ -2,9 +2,9 @@ name: Android Instrumented Tests
 
 on:
   push:
-    branches: [ develop ]
+    branches: [develop]
   pull_request:
-    branches: [ develop ]
+    branches: [develop]
 
 jobs:
   instrumented-tests:
@@ -39,6 +39,9 @@ jobs:
                     "system-images;android-30;google_apis;arm64-v8a" \
                     "emulator"
 
+      - name: Kill Existing Emulator Instances
+        run: adb emu kill || true
+
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -49,9 +52,16 @@ jobs:
           disable-animations: true
           enable-hardware-keyboard: true
           emulator-options: "-no-snapshot -no-boot-anim"
+          show-emulator-log: true
+
+      - name: Restart ADB Server
+        run: |
+          adb kill-server
+          adb start-server
 
       - name: Wait for Emulator
         run: adb wait-for-device
+        timeout-minutes: 5
 
       - name: Run Instrumented Tests
         run: ./gradlew connectedAndroidTest
