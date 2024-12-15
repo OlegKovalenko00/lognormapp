@@ -27,7 +27,7 @@ jobs:
         mkdir -p $HOME/Android/Sdk/cmdline-tools/latest
         mv $HOME/Android/cmdline-tools/* $HOME/Android/Sdk/cmdline-tools/latest
         echo "export ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
-        echo "export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+        echo "export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/emulator:$PATH" >> $GITHUB_ENV
         source $GITHUB_ENV
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install 'build-tools;35.0.0' platform-tools 'platforms;android-30' emulator
@@ -35,7 +35,7 @@ jobs:
 
     - name: Create AVD
       run: |
-        echo no | avdmanager create avd --force -n test --abi 'google_apis/arm64-v8a' --package 'system-images;android-30;google_apis;arm64-v8a' --device 'pixel_3a'
+        echo no | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force -n test --abi 'google_apis/arm64-v8a' --package 'system-images;android-30;google_apis;arm64-v8a' --device 'pixel_3a'
         echo "hw.cpu.ncore=2" >> /Users/runner/.android/avd/test.avd/config.ini
 
     - name: Start Android Emulator
