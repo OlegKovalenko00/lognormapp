@@ -33,51 +33,22 @@ jobs:
       # 3. Установка Android SDK и инструментов
       - name: Install Android SDK
         run: |
-          set -e
-
           echo "Cleaning up any existing SDK..."
           rm -rf $HOME/Library/Android/sdk ~/.android
-          mkdir -p $HOME/Library/Android/sdk/cmdline-tools
-
+          mkdir -p $HOME/Library/Android/sdk/cmdline-tools/latest
+          
           echo "Downloading and setting up cmdline-tools..."
           curl -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-10406996_latest.zip
-          if [ $? -ne 0 ]; then
-            echo "Ошибка: Не удалось скачать cmdline-tools."
-            exit 1
-          fi
-
           unzip -q commandlinetools.zip -d $HOME/Library/Android/sdk/cmdline-tools
-          if [ $? -ne 0 ]; then
-            echo "Ошибка: Не удалось распаковать cmdline-tools.zip."
-            exit 1
-          fi
-
-          if [ -d "$HOME/Library/Android/sdk/cmdline-tools/cmdline-tools" ]; then
-            mv $HOME/Library/Android/sdk/cmdline-tools/cmdline-tools $HOME/Library/Android/sdk/cmdline-tools/latest
-          else
-            echo "Ошибка: cmdline-tools не содержит ожидаемую структуру."
-            exit 1
-          fi
+          mv $HOME/Library/Android/sdk/cmdline-tools/cmdline-tools $HOME/Library/Android/sdk/cmdline-tools/latest
 
           echo "Setting up environment variables..."
           export ANDROID_HOME=$HOME/Library/Android/sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
 
-          if [ ! -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-            echo "Ошибка: sdkmanager не найден."
-            exit 1
-          fi
-
           echo "Updating and accepting licenses..."
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses --no_https || {
-            echo "Ошибка: Не удалось принять лицензии."
-            exit 1
-          }
-
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update --no_https || {
-            echo "Ошибка: Не удалось обновить SDK Manager."
-            exit 1
-          }
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses --no_https
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update --no_https
 
           echo "Installing required packages..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
@@ -85,10 +56,7 @@ jobs:
             "platform-tools" \
             "platforms;android-30" \
             "system-images;android-30;google_apis;arm64-v8a" \
-            "emulator" || {
-            echo "Ошибка: Не удалось установить необходимые пакеты."
-            exit 1
-          }
+            "emulator"
 
       # 4. Запуск эмулятора
       - name: Start Android Emulator
@@ -102,17 +70,21 @@ jobs:
           force-avd-creation: true
           emulator-boot-timeout: 600
           disable-animations: true
+          script: |
+            adb wait-for-device
+            sleep 30
+            adb shell input keyevent 82  # разблокировка экрана
 
       # 5. Ожидание готовности эмулятора
       - name: Wait for Emulator to Start
         run: |
           adb wait-for-device
           sleep 30
-          adb shell input keyevent 82
+          adb shell input keyevent 82  # Разблокировка экрана
 
       # 6. Запуск тестов
-      - name: Run Tests
-        run: ./gradlew connectedAndroidTest
+      - name: Run Instrumented Tests
+        run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.itog1.ExampleInstrumentedTest
 
       # 7. Загрузка результатов тестов
       - name: Upload Test Results
