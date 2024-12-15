@@ -30,7 +30,7 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      # 3. Установка Android SDK и инструментов
+      #3. Установка Android SDK и инструментов
       - name: Install Android SDK
         run: |
           echo "Cleaning up any existing SDK..."
