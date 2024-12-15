@@ -12,12 +12,6 @@ jobs:
   build:
     runs-on: macos-latest
 
-    strategy:
-      matrix:
-        api-level: [30]
-        target: ["google_apis"]
-        arch: ["arm64-v8a"]
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -30,7 +24,7 @@ jobs:
 
       - name: Install Android SDK
         run: |
-          echo "Cleaning up any existing SDK..."
+          echo "Setting up Android SDK..."
           rm -rf $HOME/Library/Android/sdk ~/.android
           mkdir -p $HOME/Library/Android/sdk/cmdline-tools
           curl -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-10406996_latest.zip
@@ -52,21 +46,20 @@ jobs:
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          arch: ${{ matrix.arch }}
+          api-level: 30
+          target: "google_apis"
+          arch: "arm64-v8a"
           profile: pixel_3a
-          emulator-options: "-no-snapshot -no-boot-anim -gpu swiftshader_indirect -accel off -qemu -cpu cortex-a53 -m 2048"
+          emulator-options: "-no-snapshot -no-boot-anim -gpu swiftshader_indirect -accel off"
           force-avd-creation: true
-          emulator-boot-timeout: 1200
+          emulator-boot-timeout: 600
           disable-animations: true
 
       - name: Wait for Emulator Boot
         run: |
           adb start-server
-          adb wait-for-device
           for i in {1..60}; do
-            boot_completed=$(adb shell getprop sys.boot_completed | tr -d '\r')
+            boot_completed=$(adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r')
             if [ "$boot_completed" == "1" ]; then
               echo "Emulator booted successfully!"
               break
@@ -82,9 +75,7 @@ jobs:
       - name: Run Instrumented Tests
         run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.itog1.ExampleInstrumentedTest
 
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-test-results
-          path: app/build/reports/androidTests/connected/
+      - name: Terminate Emulator
+        run: |
+          echo "Terminating emulator..."
+          adb devices | grep emulator-5554 && adb -s emulator-5554 emu kill || echo "Emulator not running."
