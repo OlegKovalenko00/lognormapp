@@ -33,6 +33,14 @@ jobs:
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install 'build-tools;35.0.0' platform-tools 'platforms;android-30' emulator
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-30;google_apis;arm64-v8a' --channel=0
 
+    - name: Cache Android SDK
+      uses: actions/cache@v3
+      with:
+        path: $HOME/Android
+        key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
+
     - name: Create AVD
       run: |
         echo no | avdmanager create avd --force -n test --abi 'google_apis/arm64-v8a' --package 'system-images;android-30;google_apis;arm64-v8a' --device 'pixel_3a'
@@ -52,7 +60,7 @@ jobs:
     - name: Wait for emulator to boot
       run: |
         echo "Waiting for the emulator to boot..."
-        adb wait-for-device
+        adb wait-for-device || exit 1
         adb shell getprop sys.boot_completed | grep "1" > /dev/null
         echo "Emulator booted successfully!"
 
