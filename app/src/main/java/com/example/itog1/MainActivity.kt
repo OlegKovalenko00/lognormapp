@@ -46,10 +46,14 @@ class MainActivity : AppCompatActivity() {
                 lastGeneratedNumber = resultTextView.text.toString()
 
             } catch (e: NumberFormatException) {
+                // Исправлено: добавлена конкретная обработка ошибки при некорректном формате данных
                 resultTextView.text = "Ошибка: некорректный формат данных."
             } catch (e: IllegalArgumentException) {
+                // Исправлено: добавлена обработка ошибки при некорректных аргументах
                 resultTextView.text = "Ошибка: некорректные аргументы."
             } catch (e: Exception) {
+                // Исправлено: выводим стек ошибки для диагностики
+                e.printStackTrace()  // Это позволяет отслеживать точную причину ошибки
                 resultTextView.text = "Произошла ошибка: ${e.localizedMessage}"
             }
         }
