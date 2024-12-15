@@ -24,22 +24,14 @@ jobs:
         curl -s https://dl.google.com/android/repository/commandlinetools-mac-8512546_latest.zip -o commandlinetools.zip
         unzip commandlinetools.zip -d $HOME/Android
         rm commandlinetools.zip
-        mkdir -p $HOME/Android/Sdk
-        mv $HOME/Android/cmdline-tools $HOME/Android/Sdk/cmdline-tools
+        mkdir -p $HOME/Android/Sdk/cmdline-tools/latest
+        mv $HOME/Android/cmdline-tools/* $HOME/Android/Sdk/cmdline-tools/latest
         echo "export ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
         echo "export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
         source $GITHUB_ENV
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install 'build-tools;35.0.0' platform-tools 'platforms;android-30' emulator
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-30;google_apis;arm64-v8a' --channel=0
-
-    - name: Cache Android SDK
-      uses: actions/cache@v3
-      with:
-        path: $HOME/Android
-        key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-android-sdk-
 
     - name: Create AVD
       run: |
@@ -60,7 +52,7 @@ jobs:
     - name: Wait for emulator to boot
       run: |
         echo "Waiting for the emulator to boot..."
-        adb wait-for-device || exit 1
+        adb wait-for-device
         adb shell getprop sys.boot_completed | grep "1" > /dev/null
         echo "Emulator booted successfully!"
 
