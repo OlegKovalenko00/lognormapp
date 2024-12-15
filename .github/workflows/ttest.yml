@@ -54,7 +54,7 @@ jobs:
           target: ${{ matrix.target }}
           arch: arm64-v8a  # Указываем ARM64 архитектуру
           profile: pixel_3a
-          emulator-options: "-no-snapshot -no-boot-anim -no-hw-accel"
+          emulator-options: "-no-snapshot -no-boot-anim"
           force-avd-creation: true
           emulator-boot-timeout: 600
           emulator-port: 5554
