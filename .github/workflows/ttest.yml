@@ -44,7 +44,7 @@ jobs:
 
       # 5. Установка Android Emulator
       - name: Install Emulator
-        run: $HOME/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "emulator" "platform-tools" "system-images;android-30;google_apis;arm64-v8a"  # Используем ARM64-вместо x86
+        run: $HOME/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "emulator" "platform-tools" "system-images;android-30;google_apis;arm64-v8a"
 
       # 6. Запуск Android эмулятора
       - name: Start Android Emulator
@@ -61,6 +61,10 @@ jobs:
           disable-animations: true
           script: |
             adb wait-for-device
+            # Ждем 30 секунд для полной загрузки эмулятора
+            sleep 30
+            # Проверяем доступность устройства
+            adb devices
             adb shell input keyevent 82  # Разблокировать экран
 
       # 7. Запуск тестов
