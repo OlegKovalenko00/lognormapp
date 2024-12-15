@@ -16,7 +16,7 @@ jobs:
       matrix:
         api-level: [30]
         target: ["google_apis"]
-        arch: ["arm64-v8a"]  # Используем ARM64 вместо x86
+        arch: ["arm64-v8a"]
 
     steps:
       # 1. Скачивание кода
@@ -38,20 +38,25 @@ jobs:
           mkdir -p $HOME/Library/Android/sdk/cmdline-tools/latest
           
           echo "Downloading and setting up cmdline-tools..."
-          curl -O https://dl.google.com/android/repository/commandlinetools-mac-10406996_latest.zip
-          unzip -q commandlinetools-mac-10406996_latest.zip -d $HOME/Library/Android/sdk/cmdline-tools
+          curl -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-10406996_latest.zip
+          unzip -q commandlinetools.zip -d $HOME/Library/Android/sdk/cmdline-tools
           mv $HOME/Library/Android/sdk/cmdline-tools/cmdline-tools $HOME/Library/Android/sdk/cmdline-tools/latest
 
           echo "Setting up environment variables..."
-          echo "ANDROID_HOME=$HOME/Library/Android/sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/Library/Android/sdk/cmdline-tools/latest/bin:$HOME/Library/Android/sdk/platform-tools" >> $GITHUB_ENV
+          export ANDROID_HOME=$HOME/Library/Android/sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
 
           echo "Updating and accepting licenses..."
-          yes | sdkmanager --licenses --no_https
-          sdkmanager --update --no_https
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses --no_https
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update --no_https
 
           echo "Installing required packages..."
-          sdkmanager "build-tools;35.0.0" "platform-tools" "platforms;android-30" "system-images;android-30;google_apis;arm64-v8a" "emulator"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "build-tools;35.0.0" \
+            "platform-tools" \
+            "platforms;android-30" \
+            "system-images;android-30;google_apis;arm64-v8a" \
+            "emulator"
 
       # 4. Запуск эмулятора
       - name: Start Android Emulator
@@ -71,7 +76,7 @@ jobs:
         run: |
           adb wait-for-device
           sleep 30
-          adb shell input keyevent 82 # Разблокировать экран
+          adb shell input keyevent 82
 
       # 6. Запуск тестов
       - name: Run Tests
