@@ -1,73 +1,66 @@
-name: Android Instrumented Tests
+name: Android CI
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
   pull_request:
-    branches: [develop]
+    branches: [main]
 
 jobs:
-  instrumented-tests:
-    name: Run Instrumented Tests
+  build:
     runs-on: macos-latest
 
     strategy:
       matrix:
         api-level: [30]
-        target: [google_apis]
-        arch: [arm64-v8a]
+        target: ["google_apis"]
+        arch: ["x86"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # 1. Скачивание кода
+      - name: Check out code
+        uses: actions/checkout@v3
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      # 2. Установка JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: 17
+          distribution: zulu
+          java-version: 11
 
+      # 3. Установка Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
-      - name: Update SDK and install system image
-        run: |
-          sdkmanager --update
-          sdkmanager "platforms;android-30" \
-                    "platform-tools" \
-                    "build-tools;30.0.3" \
-                    "system-images;android-30;google_apis;arm64-v8a" \
-                    "emulator"
-
-      - name: Kill Existing Emulator Instances
-        run: adb emu kill || true
-
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+      
+      # 4. Запуск Android эмулятора
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
-          profile: pixel_4
+          profile: pixel_3a
+          emulator-options: "-no-snapshot -no-boot-anim -no-hw-accel"
+          force-avd-creation: true
+          emulator-boot-timeout: 600
+          emulator-port: 5554
           disable-animations: true
-          enable-hardware-keyboard: true
-          emulator-options: "-no-snapshot -no-boot-anim"
-          show-emulator-log: true
+          emulator-build: "true"
+          script: |
+            adb wait-for-device
+            adb shell input keyevent 82  # Разблокировать экран
 
-      - name: Restart ADB Server
-        run: |
-          adb kill-server
-          adb start-server
-
-      - name: Wait for Emulator
-        run: adb wait-for-device
-        timeout-minutes: 5
-
-      - name: Run Instrumented Tests
+      # 5. Запуск тестов
+      - name: Run Tests
         run: ./gradlew connectedAndroidTest
 
+      # 6. Загрузка результатов тестов
       - name: Upload Test Results
-        if: always()
+        if: always()  # Загрузка результатов независимо от успеха или ошибки тестов
         uses: actions/upload-artifact@v4
         with:
           name: android-test-results
