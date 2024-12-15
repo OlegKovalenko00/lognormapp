@@ -33,7 +33,11 @@ jobs:
       - name: Update SDK and install system image
         run: |
           sdkmanager --update
-          sdkmanager "system-images;android-30;google_apis;arm64-v8a" "emulator"
+          sdkmanager "platforms;android-30" \
+                    "platform-tools" \
+                    "build-tools;30.0.3" \
+                    "system-images;android-30;google_apis;arm64-v8a" \
+                    "emulator"
 
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -44,6 +48,7 @@ jobs:
           profile: pixel_4
           disable-animations: true
           enable-hardware-keyboard: true
+          emulator-options: "-no-snapshot -no-boot-anim"
 
       - name: Wait for Emulator
         run: adb wait-for-device
