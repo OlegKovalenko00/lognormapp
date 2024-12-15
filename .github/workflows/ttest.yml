@@ -30,16 +30,18 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      #3. Установка Android SDK и инструментов
+      # 3. Установка Android SDK и инструментов
       - name: Install Android SDK
         run: |
           echo "Cleaning up any existing SDK..."
           rm -rf $HOME/Library/Android/sdk ~/.android
-          mkdir -p $HOME/Library/Android/sdk/cmdline-tools/latest
-          
+          mkdir -p $HOME/Library/Android/sdk/cmdline-tools
+
           echo "Downloading and setting up cmdline-tools..."
           curl -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-10406996_latest.zip
           unzip -q commandlinetools.zip -d $HOME/Library/Android/sdk/cmdline-tools
+
+          # Перемещение файлов в правильную директорию
           mv $HOME/Library/Android/sdk/cmdline-tools/cmdline-tools $HOME/Library/Android/sdk/cmdline-tools/latest
 
           echo "Setting up environment variables..."
