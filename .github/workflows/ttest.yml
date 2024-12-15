@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'  
-        distribution: 'adoptopenjdk'  
+        distribution: 'temurin'
 
     - name: Install Android SDK
       run: |
@@ -48,7 +48,22 @@ jobs:
         adb shell getprop sys.boot_completed | grep "1" > /dev/null
         echo "Emulator booted successfully!"
 
-    - name: Run tests
+    - name: Run instrumented tests
       run: |
-        # Run your tests here
-        echo "Running tests"
+        ./gradlew connectedAndroidTest -Pandroid.emulator.absoluteDir=/Users/runner/.android/avd/test.avd
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-test-results
+        path: app/build/reports/androidTests/connected  
+
+    - name: Check if tests passed
+      run: |
+        # Проверьте, не завершились ли тесты с ошибками
+        if [ -f "app/build/reports/androidTests/connected/index.html" ]; then
+          echo "Test results are available."
+        else
+          echo "No test results found. Please check the test configuration."
+          exit 1
+        fi
