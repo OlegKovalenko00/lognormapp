@@ -15,7 +15,7 @@ jobs:
       matrix:
         api-level: [30]
         target: [google_apis]
-        arch: [x86]
+        arch: [arm64-v8a]
 
     steps:
       - name: Checkout code
@@ -30,18 +30,10 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Update SDK
-        run: sdkmanager --update
-
-      - name: Install required components
+      - name: Update SDK and install system image
         run: |
-          sdkmanager "emulator" "system-images;android-30;google_apis;x86"
-
-      - name: Restart ADB Server
-        run: |
-          adb kill-server
-          adb start-server
-          adb devices
+          sdkmanager --update
+          sdkmanager "system-images;android-30;google_apis;arm64-v8a" "emulator"
 
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -50,12 +42,14 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: pixel_4
-          script: |
-            emulator -avd pixel_4 -no-window -gpu off &
-            adb wait-for-device
-            sleep 60
-            adb devices
-            ./gradlew connectedAndroidTest
+          disable-animations: true
+          enable-hardware-keyboard: true
+
+      - name: Wait for Emulator
+        run: adb wait-for-device
+
+      - name: Run Instrumented Tests
+        run: ./gradlew connectedAndroidTest
 
       - name: Upload Test Results
         if: always()
