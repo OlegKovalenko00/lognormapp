@@ -47,7 +47,7 @@ jobs:
         profile: pixel_3a
         emulator-options: "-no-snapshot -no-boot-anim -gpu swiftshader_indirect -wipe-data -accel off -no-vulkan"
         force-avd-creation: true
-        emulator-boot-timeout: 600
+        emulator-boot-timeout: 1200
 
     - name: Wait for emulator to boot
       run: |
