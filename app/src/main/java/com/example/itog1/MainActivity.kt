@@ -9,8 +9,9 @@ import kotlin.math.exp
 import kotlin.math.sqrt
 import java.util.Random
 
-
 class MainActivity : AppCompatActivity() {
+
+    private var lastGeneratedNumber: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,12 +22,10 @@ class MainActivity : AppCompatActivity() {
         val generateButton = findViewById<Button>(R.id.get_random_num)
         val resultTextView = findViewById<TextView>(R.id.random_number_result)
 
-
         generateButton.setOnClickListener {
             try {
                 val meanText = meanEditText.text.toString()
                 val varianceText = varianceEditText.text.toString()
-
 
                 if (meanText.isEmpty() || varianceText.isEmpty()) {
                     resultTextView.text = "Пожалуйста, заполните оба поля."
@@ -41,26 +40,23 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
-
                 val randomValue = generateLogNormal(mean, sqrt(variance))
                 resultTextView.text = "$randomValue"
 
-
                 lastGeneratedNumber = resultTextView.text.toString()
 
+            } catch (e: NumberFormatException) {
+                resultTextView.text = "Ошибка: некорректный формат данных."
             } catch (e: Exception) {
-                resultTextView.text = "Произошла ошибка: ${e.message}"
+                resultTextView.text = "Произошла ошибка: ${e.localizedMessage}"
             }
         }
     }
 
     private fun generateLogNormal(mean: Double, stdDev: Double): Double {
-
         val normalValue = Random().nextGaussian() * stdDev + mean
         return exp(normalValue)
     }
-
-    private var lastGeneratedNumber: String? = null
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
