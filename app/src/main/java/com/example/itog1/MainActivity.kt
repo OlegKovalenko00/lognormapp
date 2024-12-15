@@ -47,6 +47,8 @@ class MainActivity : AppCompatActivity() {
 
             } catch (e: NumberFormatException) {
                 resultTextView.text = "Ошибка: некорректный формат данных."
+            } catch (e: IllegalArgumentException) {
+                resultTextView.text = "Ошибка: некорректные аргументы."
             } catch (e: Exception) {
                 resultTextView.text = "Произошла ошибка: ${e.localizedMessage}"
             }
