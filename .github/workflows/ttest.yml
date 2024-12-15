@@ -30,17 +30,23 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      # 3. Установка Android SDK
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 6.0  # Используем стабильную доступную версию
+      # 3. Установка Android SDK вручную
+      - name: Install Android SDK
+        run: |
+          curl -O https://dl.google.com/android/repository/commandlinetools-mac-12266719_latest.zip
+          unzip commandlinetools-mac-12266719_latest.zip -d $HOME/Library/Android/sdk/cmdline-tools
+          echo "ANDROID_HOME=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/Library/Android/sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
 
-      # 4. Установка переменной окружения для пропуска проверки JDK
-      - name: Skip JDK version check
-        run: echo "SKIP_JDK_VERSION_CHECK=true" >> $GITHUB_ENV
+      # 4. Принимаем лицензии SDK
+      - name: Accept Android SDK licenses
+        run: yes | $HOME/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      # 5. Запуск Android эмулятора
+      # 5. Установка Android Emulator
+      - name: Install Emulator
+        run: $HOME/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "emulator" "platform-tools" "system-images;android-30;google_apis;x86"
+
+      # 6. Запуск Android эмулятора
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -58,11 +64,11 @@ jobs:
             adb wait-for-device
             adb shell input keyevent 82  # Разблокировать экран
 
-      # 6. Запуск тестов
+      # 7. Запуск тестов
       - name: Run Tests
         run: ./gradlew connectedAndroidTest
 
-      # 7. Загрузка результатов тестов
+      # 8. Загрузка результатов тестов
       - name: Upload Test Results
         if: always()  # Загрузка результатов независимо от успеха или ошибки тестов
         uses: actions/upload-artifact@v4
