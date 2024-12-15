@@ -56,7 +56,7 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: pixel_3a
-          emulator-options: "-no-snapshot -no-boot-anim -gpu swiftshader_indirect -wipe-data -no-vulkan -qemu -m 2048 -accel off"
+          emulator-options: "-no-snapshot -no-boot-anim -gpu swiftshader_indirect -wipe-data -accel off -qemu -m 2048"
           force-avd-creation: true
           emulator-boot-timeout: 1200
           disable-animations: true
