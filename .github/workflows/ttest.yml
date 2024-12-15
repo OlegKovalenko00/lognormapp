@@ -22,13 +22,20 @@ jobs:
         java-version: '11'
         distribution: 'adoptopenjdk'
 
-    - name: Set up Android SDK
-      uses: reactivecircus/android-sdk-install@v3
-      with:
-        api-level: 30
-        build-tools: 30.0.3
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        mkdir -p $HOME/android-sdk
+        unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --update
+        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;30.0.3" "platforms;android-30"
 
-    - name: Install dependencies
+    - name: Set ANDROID_HOME environment variable
+      run: echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+
+    - name: Build project
       run: ./gradlew --no-daemon clean build
 
     - name: Run instrumented tests
