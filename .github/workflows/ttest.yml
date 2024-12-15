@@ -65,7 +65,7 @@ jobs:
 
     - name: Run instrumented tests
       run: |
-        ./gradlew connectedAndroidTest -Pandroid.emulator.absoluteDir=/Users/runner/.android/avd/test.avd
+        ./gradlew connectedAndroidTest -Pandroid.emulator.absoluteDir=/Users/runner/.android/avd/test.avd --no-daemon
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
@@ -80,4 +80,3 @@ jobs:
         else
           echo "No test results found. Please check the test configuration."
           exit 1
-        fi
