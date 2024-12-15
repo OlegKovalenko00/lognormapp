@@ -28,8 +28,8 @@ jobs:
         api-level: 30
         build-tools: 30.0.3
 
-    - name: Build project
-      run: ./gradlew build
+    - name: Install dependencies
+      run: ./gradlew --no-daemon clean build
 
     - name: Run instrumented tests
-      run: ./gradlew connectedAndroidTest
+      run: ./gradlew --no-daemon connectedDebugAndroidTest
