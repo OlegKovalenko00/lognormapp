@@ -59,7 +59,6 @@ jobs:
           emulator-boot-timeout: 600
           emulator-port: 5554
           disable-animations: true
-          emulator-build: "true"
           script: |
             adb wait-for-device
             adb shell input keyevent 82  # Разблокировать экран
