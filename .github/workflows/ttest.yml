@@ -19,12 +19,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: set up JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+      - name: Check Java version
+        run: java -version  
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Unit Tests
@@ -36,7 +38,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: '17'
           distribution: 'zulu'
       - uses: gradle/gradle-build-action@v2
       - name: Build project
@@ -46,6 +48,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
+
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
@@ -60,7 +63,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: '17'
           distribution: 'zulu'
       - uses: gradle/gradle-build-action@v2
       - name: AVD cache
