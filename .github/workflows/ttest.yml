@@ -22,13 +22,11 @@ jobs:
       - name: Set up JDK 23
         uses: actions/setup-java@v3
         with:
-          java-version: '23'
-          distribution: 'temurin'  # Или используйте другой дистрибутив, если необходимо
+          java-version: '23'  # Устанавливаем JDK 23
+          distribution: 'temurin'  # Используем дистрибутив Temurin для JDK 23
           cache: gradle
       - name: Check Java version
-        run: java -version  # Проверка, что используется JDK 23
-      - name: Set JAVA_HOME explicitly
-        run: echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV  # Устанавливаем JAVA_HOME для Gradle
+        run: java -version  # Проверка установленной версии JDK
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Unit Tests
@@ -40,7 +38,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
-          java-version: '23'
+          java-version: '23'  # Используем JDK 23 для сборки
           distribution: 'temurin'
       - uses: gradle/gradle-build-action@v2
       - name: Build project
@@ -64,7 +62,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
-          java-version: '23'
+          java-version: '23'  # JDK 23 для тестов
           distribution: 'temurin'
       - uses: gradle/gradle-build-action@v2
       - name: AVD cache
