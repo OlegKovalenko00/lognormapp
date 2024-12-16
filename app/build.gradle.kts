@@ -14,12 +14,12 @@ android {
     namespace = "com.example.itog1"
     compileSdk = 34
     packagingOptions {
-        exclude("META-INF/DEPENDENCIES")
-        exclude("META-INF/INDEX.LIST")
-        exclude("META-INF/LICENSE")
-        exclude("META-INF/LICENSE.txt")
-        exclude("META-INF/NOTICE")
-        exclude("git.properties")
+        resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/INDEX.LIST")
+        resources.excludes.add("META-INF/LICENSE")
+        resources.excludes.add("META-INF/LICENSE.txt")
+        resources.excludes.add("META-INF/NOTICE")
+        resources.excludes.add("git.properties")
     }
     defaultConfig {
         applicationId = "com.example.itog1"
@@ -65,10 +65,10 @@ dependencies {
     testImplementation(libs.commons.io.v2130)
 
     // Для тестов Android
+    androidTestImplementation("androidx.core:core-ktx:1.13.0") // Добавлено для устранения конфликта
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.core)
-    androidTestImplementation(libs.kakao)
+    androidTestImplementation("io.github.kakaocup:kakao:3.1.0") // Обновлено
 
     // Дополнительные библиотеки
     implementation(libs.commons.math3)
