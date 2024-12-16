@@ -72,11 +72,4 @@ dependencies {
 
     // Дополнительные библиотеки
     implementation(libs.commons.math3)
-
-    // Принудительное разрешение зависимости для androidx.core:core-ktx
-    configurations.all {
-        resolutionStrategy {
-            force("androidx.core:core-ktx:1.15.0")
-        }
-    }
 }
