@@ -23,7 +23,7 @@ android {
     }
     defaultConfig {
         applicationId = "com.example.itog1"
-        minSdk = 27
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -51,24 +51,32 @@ android {
     }
 }
 
-
 dependencies {
-
     // Основные библиотеки
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.dataframe)
+
+    // Для тестирования
     testImplementation(libs.junit)
     testImplementation(libs.commonsLang)
     testImplementation(libs.commons.io.v2130)
 
+    // Для тестов Android
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.core)
     androidTestImplementation(libs.kakao)
 
-
+    // Дополнительные библиотеки
     implementation(libs.commons.math3)
+
+    // Принудительное разрешение зависимости для androidx.core:core-ktx
+    configurations.all {
+        resolutionStrategy {
+            force("androidx.core:core-ktx:1.15.0")
+        }
+    }
 }
