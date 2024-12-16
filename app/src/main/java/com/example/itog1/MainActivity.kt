@@ -46,21 +46,14 @@ class MainActivity : AppCompatActivity() {
                 lastGeneratedNumber = resultTextView.text.toString()
 
             } catch (e: NumberFormatException) {
-                // Конкретная обработка ошибки
                 resultTextView.text = "Ошибка: некорректный формат данных."
-                e.printStackTrace() // Печать стека для диагностики
+                e.printStackTrace()
             } catch (e: IllegalArgumentException) {
-                // Конкретная обработка ошибки
                 resultTextView.text = "Ошибка: некорректные аргументы."
-                e.printStackTrace() // Печать стека для диагностики
+                e.printStackTrace()
             } catch (e: ArithmeticException) {
-                // Обработка ошибок математических операций
                 resultTextView.text = "Ошибка: ошибка в математической операции."
-                e.printStackTrace() // Печать стека для диагностики
-            } catch (e: Exception) {
-                // Обработка всех остальных ошибок
-                resultTextView.text = "Произошла ошибка: ${e.localizedMessage}"
-                e.printStackTrace() // Печать стека для диагностики
+                e.printStackTrace()
             }
         }
     }
