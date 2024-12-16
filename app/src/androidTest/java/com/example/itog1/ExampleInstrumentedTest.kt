@@ -41,7 +41,7 @@ internal class InstrumentedTest {
     var lastNumber = 0.0
     var widgetFlag = false
 
-    private val limit = 1000
+    private val limit = 1500
     private var mean = 0.0
     private var variance = 1.0
 
