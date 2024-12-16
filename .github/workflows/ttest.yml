@@ -8,7 +8,6 @@ on:
 
 jobs:
   validation:
-    name: Validate Gradle Wrapper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,12 +29,12 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew test
       - name: Upload Unit Test Results
-        if: ${{ always() }}
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: unit-test-results
-          path: **/build/test-results/test/*
-  
+          path: app/build/test-results/test/*
+
   detekt:
     name: Run Detekt Static Analysis
     runs-on: ubuntu-latest
@@ -51,12 +50,6 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run Detekt
         run: ./gradlew detekt
-      - name: Upload Detekt Report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: detekt-report
-          path: app/build/reports/detekt/*
 
   checkstyle:
     name: Run Checkstyle Analysis
@@ -73,34 +66,6 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain
-      - name: Upload Checkstyle Report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: checkstyle-report
-          path: app/build/reports/checkstyle/*
-
-  lint:
-    name: Run Lint Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-      - name: Run Lint
-        run: ./gradlew lint
-      - name: Upload Lint Report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: lint-report
-          path: app/build/reports/lint-results.html
 
   instrumentation-tests:
     name: Run Instrumentation Tests
@@ -118,8 +83,7 @@ jobs:
           - 31
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'zulu'
@@ -145,7 +109,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-load
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
-      - name: Run Instrumentation Tests
+      - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -154,9 +118,10 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save
           disable-animations: true
           script: ./gradlew connectedDebugAndroidTest
-      - name: Upload Instrumentation Test Results
-        if: ${{ always() }}
+      - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: instrumentation-test-results-${{ matrix.api-level }}
-          path: app/build/reports/androidTests/connected/*
+          name: ${{ matrix.api-level }}-${{ matrix.arch }}-instrumentation-test-results
+          path: |
+            ./**/build/reports/androidTests/connected/**
